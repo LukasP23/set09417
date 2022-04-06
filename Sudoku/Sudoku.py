@@ -1,23 +1,8 @@
 def main():
     menu = Menu()
     menu.display_option()
-    
-class Board:  
-    def __init__(self):
-        boards = Sudoku()
-        self.print_board(boards.sudoku_board)
-            
-    def print_board(self, board):
-        count = -1
-        print(" -----------------------------")
-        for i in board:
-            string = " | %s | %s %s %s | %s %s %s | %s %s %s | " % (str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]), str(i[5]), str(i[6]), str(i[7]), str(i[8]), str(i[9]))
-            print(string)
-            count += 1
-            if (count == 0 or count % 3 == 0):
-                print(" -----------------------------")
-                count = 0
-class Sudoku:
+                  
+class Boards:
     def __init__(self):
         self.sudoku_board = [[" ", "A","B","C","D","E","F","G","H","I"],
                             ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -29,46 +14,47 @@ class Sudoku:
                             ["G", 0, 6, 0, 0, 0, 0, 2, 8, 0],
                             ["H", 0, 0, 0, 4, 1, 9, 0, 0, 5],
                             ["I", 0, 0, 0, 0, 8, 0, 0, 7, 9]]
-        self.sudoku_board_start = [[5, 3, 0, 0, 7, 0, 0, 0, 0],
-                                   [6, 0, 0, 1, 9, 5, 0, 0, 0],
-                                   [0, 9, 8, 0, 0, 0, 0, 6, 0],
-                                   [8, 0, 0, 0, 6, 0, 0, 0, 3],
-                                   [4, 0, 0, 8, 0, 3, 0, 0, 1],
-                                   [7, 0, 0, 0, 2, 0, 0, 0, 6],
-                                   [0, 6, 0, 0, 0, 0, 2, 8, 0],
-                                   [0, 0, 0, 4, 1, 9, 0, 0, 5],
-                                   [0, 0, 0, 0, 8, 0, 0, 7, 9]]
-                            
-        self.sudoku_board_solution = [[5, 3, 4, 6, 7, 8, 9, 1, 2],
-                                      [6, 7, 2, 1, 9, 5, 3, 4, 8],
-                                      [1, 9, 8, 3, 4, 2, 5, 6, 7],
-                                      [8, 5, 9, 7, 6, 1, 4, 2, 3],
-                                      [4, 2, 6, 8, 5, 3, 7, 9, 1],
-                                      [7, 1, 3, 9, 2, 4, 8, 4, 6],
-                                      [9, 6, 1, 5, 3, 7, 2, 8, 4],
-                                      [2, 8, 7, 4, 1, 9, 6, 3, 5],
-                                      [3, 4, 5, 2, 8, 6, 1, 7, 9]]
+        self.sudoku_board_start = [[" ", "A","B","C","D","E","F","G","H","I"],
+                                   ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
+                                   ["B", 6, 0, 0, 1, 9, 5, 0, 0, 0],
+                                   ["C", 0, 9, 8, 0, 0, 0, 0, 6, 0],
+                                   ["D", 8, 0, 0, 0, 6, 0, 0, 0, 3],
+                                   ["E", 4, 0, 0, 8, 0, 3, 0, 0, 1],
+                                   ["F", 7, 0, 0, 0, 2, 0, 0, 0, 6],
+                                   ["G", 0, 6, 0, 0, 0, 0, 2, 8, 0],
+                                   ["H", 0, 0, 0, 4, 1, 9, 0, 0, 5],
+                                   ["I", 0, 0, 0, 0, 8, 0, 0, 7, 9]]
+        self.sudoku_board_solution = [[" ", "A","B","C","D","E","F","G","H","I"],
+                                      ["A", 5, 3, 4, 6, 7, 8, 9, 1, 2],
+                                      ["B", 6, 7, 2, 1, 9, 5, 3, 4, 8],
+                                      ["C", 1, 9, 8, 3, 4, 2, 5, 6, 7],
+                                      ["D", 8, 5, 9, 7, 6, 1, 4, 2, 3],
+                                      ["E", 4, 2, 6, 8, 5, 3, 7, 9, 1],
+                                      ["F", 7, 1, 3, 9, 2, 4, 8, 4, 6],
+                                      ["G", 9, 6, 1, 5, 3, 7, 2, 8, 4],
+                                      ["H", 2, 8, 7, 4, 1, 9, 6, 3, 5],
+                                      ["I", 3, 4, 5, 2, 8, 6, 1, 7, 9]]
                             
 class Menu:
     def __init__(self):
         self.menu_options = {
             1: "Traditional Sudoku",
-            2: "Option 2",
+            2: "Instructions",
             3: "Option 3",
             4: "Exit",
         }
-        print("\nWelcome to Sudoku!\n")
+        input("\n Welcome to Sudoku! (Hit any key to continue)")
         
     def get_input(self):
         while(True):
             self.print_menu()
             option = ""
             try:
-                option = int(input("\nPlease choose a gamemode: "))
+                option = int(input("\n Please choose a gamemode: "))
                 return option
                 break
             except:
-                print("\nInvalid input. Please enter a number that corresponds to a displayed option\n")
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
    
     def display_option(self):
         while(True):
@@ -83,25 +69,148 @@ class Menu:
                 self.option3()
                 break
             elif option == 4:
-                print("\nThanks for playing!")
+                input("\n Thanks for playing!")
                 exit()
             else:
-                print("\nInvalid input. Please enter a number that corresponds to a displayed option\n")
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
    
     def print_menu(self):
+        print("\n Home Menu:")
         for key in self.menu_options.keys():
-            print (key, "-", self.menu_options[key] )
+            print ("", key, "-", self.menu_options[key] )
 
     def option1(self):
-         board_9x9 = Board()
-
+         current_game = Game()
+         self.display_option()
+         
     def option2(self):
-         print("\nOption 2")
-         exit()
-
+         input(" Intructions:\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 3. You cannot enter a value in a square that is populated at the beginning of the game.\n 4. Once you think you have finished you can use the game menu to submit your board to be checked.")
+         self.display_option()
+         
     def option3(self):
          print("\nOption 3")
          exit()
-         
+ 
+class Game:
+    def __init__(self):
+        boards = Boards()
+        self.game_board = boards.sudoku_board
+        self.start_board = boards.sudoku_board_start
+        self.solution_board = boards.sudoku_board_solution
+        self.menu = Game_Menu()
+        while True:
+            self.print_board(self.game_board)
+            choice = self.menu.get_input()
+            if(choice == 1):
+                self.game_input()
+                self.insert_value()
+            elif(choice == 2):
+                if(self.submit_board()):
+                    input("\n Correct - Well Done!")
+                    break
+                else:
+                    input("\n Not quite - keep trying!")
+            elif(choice == 3):
+                break
+            else:
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+    
+    def print_board(self, board):
+        count = -1
+        print("\n -----------------------------")
+        for i in board:
+            string = " | %s | %s %s %s | %s %s %s | %s %s %s | " % (str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]), str(i[5]), str(i[6]), str(i[7]), str(i[8]), str(i[9]))
+            print(string)
+            count += 1
+            if (count == 0 or count % 3 == 0):
+                print(" -----------------------------")
+                count = 0
+                
+    def game_input(self):
+        self.input_row = ""
+        self.input_column = ""
+        self.value = 0
+        self.row = 0
+        self.column = 0
+        while True:
+            self.input_row = input("\n Enter row: ").upper()
+            self.row = self.convert_value(self.input_row)
+            if(self.row != 0):
+                break
+            input("\n Invalid input - Please enter a letter than corresponds to a row on the board!")
+        while True:
+            self.input_column = input("\n Enter column: ").upper()
+            self.column = self.convert_value(self.input_column)      
+            if(self.column != 0):
+                break            
+            input("\n Invalid input - Please enter a letter than corresponds to a column on the board!")
+        while True:
+            try:
+                self.value = int(input("\n Enter value: "))
+                if(self.value < 10 and self.value > 0):
+                    break
+                else: 
+                    input("\n Invalid input - Please enter a number from 1 to 9!")
+            except:
+                input("\n Invalid input - Please enter a number from 1 to 9!")
+        
+    def convert_value(self, value):
+        output = 0
+        if (value == "A"):
+            output = 1
+        elif (value == "B"):
+            output = 2   
+        elif (value == "C"):
+            output = 3 
+        elif (value == "D"):
+            output = 4 
+        elif (value == "E"):
+            output = 5 
+        elif (value == "F"):
+            output = 6 
+        elif (value == "G"):
+            output = 7 
+        elif (value == "H"):
+            output = 8 
+        elif (value == "I"):
+            output = 9        
+        return output
+            
+    def insert_value(self):
+        if (self.start_board[self.row][self.column] == 0):
+            self.game_board[self.row][self.column] = self.value
+        else:
+            input("\n This is a set value - try again!")   
+            
+    def submit_board(self):
+        if(self.game_board == self.solution_board):
+            return True
+        else:
+            return False
+   
+class Game_Menu:
+    def __init__(self):
+        self.menu_options = {
+            1: "Enter value",
+            2: "Submit board",
+            3: "Exit to menu"
+        }
+        
+    def get_input(self):
+        while(True):
+            self.print_menu()
+            option = ""
+            try:
+                option = int(input("\n Please choose an option: "))
+                return option
+                break
+            except:
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+   
+    def print_menu(self):
+        print("\n Game Menu:")
+        for key in self.menu_options.keys():
+            print ("", key, "-", self.menu_options[key] )
+     
 if __name__ == "__main__":
     main()
