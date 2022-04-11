@@ -23,7 +23,7 @@ class Boards:
                                       ["F", 7, 1, 3, 9, 2, 4, 8, 4, 6],
                                       ["G", 9, 6, 1, 5, 3, 7, 2, 8, 4],
                                       ["H", 2, 8, 7, 4, 1, 9, 6, 3, 5],
-                                      ["I", 3, 4, 5, 2, 8, 6, 1, 7, 9]]
+                                      ["I", 0, 4, 5, 2, 8, 6, 1, 7, 9]]
                             
         self.sudoku_board_start = [[" ", "A","B","C","D","E","F","G","H","I"],
                                    ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -57,23 +57,19 @@ class Menu:
         }
         input("\n Welcome to Sudoku! (Hit any key to continue)")
         
-    def get_input(self, menu):
+    def get_input(self):
         while(True):
-            if (menu == "home"):
-                self.print_menu()
-            elif (menu == "replay"):
-                self.print_replay_menu()
+            self.print_menu()
             option = ""
             try:
                 option = int(input("\n Please choose an option: "))
                 return option
-                break
             except:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
    
     def display_option(self):
         while(True):
-            option = self.get_input("home")
+            option = self.get_input()
             if option == 1:
                 self.option1()
                 break
@@ -96,17 +92,26 @@ class Menu:
 
     def print_replay_menu(self):
         print("\n Previous Games:")
-        self.i = 1
+        if (len(self.previous_games) == 0):
+            print("\n You do not have any saved games to replay!")
         for key in self.previous_games.keys():
-            print ("", self.i,"-", key)
-            self.i += 1
-        print (" " + str(self.i) +" - Exit to menu")
+            print (" -", key)
+     
+    def get_replay_input(self):
+        self.print_replay_menu()
+        while True:
+            game_key = input("\n Enter the name of the game you would like to replay or 'menu' to return to the main menu: ")
+            if(game_key == "menu" or game_key in self.previous_games):
+                return game_key
+            else:
+                input("\n Invalid input - Please enter the name of the game you would like to replay or 'menu' to return to the main menu ")
         
     def option1(self):
         current_game = Game()
         game_moves = Game().new_game()
         if (game_moves != "exit"):
             self.previous_games[game_moves[0]] = game_moves[1]
+        print(self.previous_games)
         self.display_option()
          
     def option2(self):
@@ -115,18 +120,14 @@ class Menu:
          
     def option3(self):
         while(True):
-            replay = self.get_input("replay")
-            if (replay == self.i):
-                self.display_option()
-            elif (replay >= 1 and replay <= (len(self.previous_games)+1)):
-                i = 1
-                for key in self.previous_games.keys():
-                    if i == replay:
-                        replay_game = Game()
-                        replay_game.replay(self.previous_games[key])
+            game_key = self.get_replay_input()
+            if (game_key == "menu"):
+                break
             else:
-                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
-            
+                replay_game = Game()
+                replay_game.replay(self.previous_games[game_key])
+        self.display_option()  
+        
 class Game:
     def new_game(self):
         boards = Boards()
