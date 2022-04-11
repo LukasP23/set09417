@@ -107,7 +107,6 @@ class Menu:
         game_moves = Game().new_game()
         if (game_moves != "exit"):
             self.previous_games[game_moves[0]] = game_moves[1]
-        print(self.previous_games)
         self.display_option()
          
     def option2(self):
@@ -120,7 +119,11 @@ class Menu:
             if (replay == self.i):
                 self.display_option()
             elif (replay >= 1 and replay <= (len(self.previous_games)+1)):
-                print("Test Success")
+                i = 1
+                for key in self.previous_games.keys():
+                    if i == replay:
+                        replay_game = Game()
+                        replay_game.replay(self.previous_games[key])
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
             
@@ -154,13 +157,13 @@ class Game:
             elif(choice == 4):
                 if(self.submit_board()):
                     self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
+                    while (self.game_name == ""):
+                        self.game_name = input("\n Game name cannot be empty, please try again: ")
                     return [self.game_name, self.moves]
-                    #break
                 else:
                     input("\n Not quite - keep trying!")
             elif(choice == 5):
                 return "exit"
-                #break
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
     
@@ -260,6 +263,19 @@ class Game:
             self.undo_stack.append(last_undo)
             self.moves.append([redo_row, redo_column, redo_value])
                    
+    def replay(self, moves):
+        boards = Boards()
+        self.replay_board = boards.sudoku_board
+        self.print_board(self.replay_board)
+        print("\n Press any key to cycle through each move of the replay!")
+        i = 1
+        for move in moves:
+            self.replay_board[move[0]][move[1]] = move[2]
+            input("")
+            print(" Move "+str(i)+":")
+            self.print_board(self.replay_board)
+            i += 1
+                       
 class Game_Menu:
     def __init__(self):
         self.menu_options = {
