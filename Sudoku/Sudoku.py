@@ -4,16 +4,27 @@ def main():
                   
 class Boards:
     def __init__(self):
+ #       self.sudoku_board = [[" ", "A","B","C","D","E","F","G","H","I"],
+  #                          ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
+   #                         ["B", 6, 0, 0, 1, 9, 5, 0, 0, 0],
+    #                        ["C", 0, 9, 8, 0, 0, 0, 0, 6, 0],
+     #                       ["D", 8, 0, 0, 0, 6, 0, 0, 0, 3],
+      #                      ["E", 4, 0, 0, 8, 0, 3, 0, 0, 1],
+       #                     ["F", 7, 0, 0, 0, 2, 0, 0, 0, 6],
+        #                    ["G", 0, 6, 0, 0, 0, 0, 2, 8, 0],
+         #                   ["H", 0, 0, 0, 4, 1, 9, 0, 0, 5],
+          #                  ["I", 0, 0, 0, 0, 8, 0, 0, 7, 9]]
         self.sudoku_board = [[" ", "A","B","C","D","E","F","G","H","I"],
-                            ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
-                            ["B", 6, 0, 0, 1, 9, 5, 0, 0, 0],
-                            ["C", 0, 9, 8, 0, 0, 0, 0, 6, 0],
-                            ["D", 8, 0, 0, 0, 6, 0, 0, 0, 3],
-                            ["E", 4, 0, 0, 8, 0, 3, 0, 0, 1],
-                            ["F", 7, 0, 0, 0, 2, 0, 0, 0, 6],
-                            ["G", 0, 6, 0, 0, 0, 0, 2, 8, 0],
-                            ["H", 0, 0, 0, 4, 1, 9, 0, 0, 5],
-                            ["I", 0, 0, 0, 0, 8, 0, 0, 7, 9]]
+                                      ["A", 5, 3, 0, 6, 7, 8, 9, 1, 2],
+                                      ["B", 6, 7, 2, 1, 9, 5, 3, 4, 8],
+                                      ["C", 1, 9, 8, 3, 4, 2, 5, 6, 7],
+                                      ["D", 8, 5, 9, 7, 6, 1, 4, 2, 3],
+                                      ["E", 4, 2, 6, 8, 5, 3, 7, 9, 1],
+                                      ["F", 7, 1, 3, 9, 2, 4, 8, 4, 6],
+                                      ["G", 9, 6, 1, 5, 3, 7, 2, 8, 4],
+                                      ["H", 2, 8, 7, 4, 1, 9, 6, 3, 5],
+                                      ["I", 3, 4, 5, 2, 8, 6, 1, 7, 9]]
+                            
         self.sudoku_board_start = [[" ", "A","B","C","D","E","F","G","H","I"],
                                    ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
                                    ["B", 6, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -46,12 +57,15 @@ class Menu:
         }
         input("\n Welcome to Sudoku! (Hit any key to continue)")
         
-    def get_input(self):
+    def get_input(self, menu):
         while(True):
-            self.print_menu()
+            if (menu == "home"):
+                self.print_menu()
+            elif (menu == "replay"):
+                self.print_replay_menu()
             option = ""
             try:
-                option = int(input("\n Please choose a gamemode: "))
+                option = int(input("\n Please choose an option: "))
                 return option
                 break
             except:
@@ -59,7 +73,7 @@ class Menu:
    
     def display_option(self):
         while(True):
-            option = self.get_input()
+            option = self.get_input("home")
             if option == 1:
                 self.option1()
                 break
@@ -80,22 +94,38 @@ class Menu:
         for key in self.menu_options.keys():
             print ("", key, "-", self.menu_options[key] )
 
+    def print_replay_menu(self):
+        print("\n Previous Games:")
+        self.i = 1
+        for key in self.previous_games.keys():
+            print ("", self.i,"-", key)
+            self.i += 1
+        print (" " + str(self.i) +" - Exit to menu")
+        
     def option1(self):
-         current_game = Game()
-         game_moves = Game().get_moves()
-         self.previous_games[game_moves[0]] = game_moves[1]
-         self.display_option()
+        current_game = Game()
+        game_moves = Game().new_game()
+        if (game_moves != "exit"):
+            self.previous_games[game_moves[0]] = game_moves[1]
+        print(self.previous_games)
+        self.display_option()
          
     def option2(self):
-         input(" Intructions:\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 3. You cannot enter a value in a square that is populated at the beginning of the game.\n 4. Once you think you have finished you can use the game menu to submit your board to be checked.")
-         self.display_option()
+        input(" Intructions:\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 3. You cannot enter a value in a square that is populated at the beginning of the game.\n 4. Once you think you have finished you can use the game menu to submit your board to be checked.")
+        self.display_option()
          
     def option3(self):
-         print("\nOption 3")
-         exit()
- 
+        while(True):
+            replay = self.get_input("replay")
+            if (replay == self.i):
+                self.display_option()
+            elif (replay >= 1 and replay <= (len(self.previous_games)+1)):
+                print("Test Success")
+            else:
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+            
 class Game:
-    def __init__(self):
+    def new_game(self):
         boards = Boards()
         self.game_board = boards.sudoku_board
         self.start_board = boards.sudoku_board_start
@@ -104,6 +134,7 @@ class Game:
         self.undo_stack = []
         self.redo_stack = []
         self.moves = []
+        self.game_name = ""
         self.value = 0
         self.old_value = 0
         self.input_row = ""
@@ -123,11 +154,13 @@ class Game:
             elif(choice == 4):
                 if(self.submit_board()):
                     self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
-                    break
+                    return [self.game_name, self.moves]
+                    #break
                 else:
                     input("\n Not quite - keep trying!")
             elif(choice == 5):
-                break
+                return "exit"
+                #break
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
     
@@ -226,10 +259,7 @@ class Game:
             self.game_board[redo_row][redo_column] = redo_value
             self.undo_stack.append(last_undo)
             self.moves.append([redo_row, redo_column, redo_value])
-            
-    def get_moves(self):
-        return [self.game_name, self.moves]
-        
+                   
 class Game_Menu:
     def __init__(self):
         self.menu_options = {
