@@ -37,10 +37,11 @@ class Boards:
                             
 class Menu:
     def __init__(self):
+        self.previous_games = {}
         self.menu_options = {
             1: "Traditional Sudoku",
             2: "Instructions",
-            3: "Option 3",
+            3: "Replay",
             4: "Exit",
         }
         input("\n Welcome to Sudoku! (Hit any key to continue)")
@@ -81,6 +82,8 @@ class Menu:
 
     def option1(self):
          current_game = Game()
+         game_moves = Game().get_moves()
+         self.previous_games[game_moves[0]] = game_moves[1]
          self.display_option()
          
     def option2(self):
@@ -98,6 +101,15 @@ class Game:
         self.start_board = boards.sudoku_board_start
         self.solution_board = boards.sudoku_board_solution
         self.menu = Game_Menu()
+        self.undo_stack = []
+        self.redo_stack = []
+        self.moves = []
+        self.value = 0
+        self.old_value = 0
+        self.input_row = ""
+        self.input_column = ""
+        self.row = 0
+        self.column = 0
         while True:
             self.print_board(self.game_board)
             choice = self.menu.get_input()
@@ -105,12 +117,16 @@ class Game:
                 self.game_input()
                 self.insert_value()
             elif(choice == 2):
+                self.undo()
+            elif(choice == 3):
+                self.redo()
+            elif(choice == 4):
                 if(self.submit_board()):
-                    input("\n Correct - Well Done!")
+                    self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
                     break
                 else:
                     input("\n Not quite - keep trying!")
-            elif(choice == 3):
+            elif(choice == 5):
                 break
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
@@ -127,11 +143,6 @@ class Game:
                 count = 0
                 
     def game_input(self):
-        self.input_row = ""
-        self.input_column = ""
-        self.value = 0
-        self.row = 0
-        self.column = 0
         while True:
             self.input_row = input("\n Enter row: ").upper()
             self.row = self.convert_value(self.input_row)
@@ -178,7 +189,11 @@ class Game:
             
     def insert_value(self):
         if (self.start_board[self.row][self.column] == 0):
+            self.old_value = self.game_board[self.row][self.column]
             self.game_board[self.row][self.column] = self.value
+            self.undo_stack.append([self.row, self.column, self.value, self.old_value])
+            self.redo_stack = []
+            self.moves.append([self.row, self.column, self.value])
         else:
             input("\n This is a set value - try again!")   
             
@@ -188,12 +203,41 @@ class Game:
         else:
             return False
    
+    def undo(self):
+        if (len(self.undo_stack) == 0 ):
+            input("\n There are no moves to undo!")
+        else:
+            last_move = self.undo_stack.pop()
+            undo_row = int(last_move[0])
+            undo_column = int(last_move[1])
+            undo_value = int(last_move[3])
+            self.game_board[undo_row][undo_column] = undo_value
+            self.moves.append([undo_row, undo_column, undo_value])
+            self.redo_stack.append(last_move)
+            
+    def redo(self):
+        if (len(self.redo_stack) == 0 ):
+            input("\n There are no moves to redo!")
+        else:
+            last_undo = self.redo_stack.pop()
+            redo_row = int(last_undo[0])
+            redo_column = int(last_undo[1])
+            redo_value = int(last_undo[2])
+            self.game_board[redo_row][redo_column] = redo_value
+            self.undo_stack.append(last_undo)
+            self.moves.append([redo_row, redo_column, redo_value])
+            
+    def get_moves(self):
+        return [self.game_name, self.moves]
+        
 class Game_Menu:
     def __init__(self):
         self.menu_options = {
             1: "Enter value",
-            2: "Submit board",
-            3: "Exit to menu"
+            2: "Undo move",
+            3: "Redo move",
+            4: "Submit board",
+            5: "Exit to menu"
         }
         
     def get_input(self):
