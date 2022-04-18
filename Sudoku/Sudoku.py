@@ -1,65 +1,220 @@
+import copy
+import random
+
 def main():
+    input("\n Welcome to Sudoku! (Hit any key to continue)")
     menu = Menu()
     menu.display_option()
-                  
-class Boards:
-    def __init__(self):
- #       self.sudoku_board = [[" ", "A","B","C","D","E","F","G","H","I"],
-  #                          ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
-   #                         ["B", 6, 0, 0, 1, 9, 5, 0, 0, 0],
-    #                        ["C", 0, 9, 8, 0, 0, 0, 0, 6, 0],
-     #                       ["D", 8, 0, 0, 0, 6, 0, 0, 0, 3],
-      #                      ["E", 4, 0, 0, 8, 0, 3, 0, 0, 1],
-       #                     ["F", 7, 0, 0, 0, 2, 0, 0, 0, 6],
-        #                    ["G", 0, 6, 0, 0, 0, 0, 2, 8, 0],
-         #                   ["H", 0, 0, 0, 4, 1, 9, 0, 0, 5],
-          #                  ["I", 0, 0, 0, 0, 8, 0, 0, 7, 9]]
-        self.sudoku_board = [[" ", "A","B","C","D","E","F","G","H","I"],
-                                      ["A", 5, 3, 0, 6, 7, 8, 9, 1, 2],
-                                      ["B", 6, 7, 2, 1, 9, 5, 3, 4, 8],
-                                      ["C", 1, 9, 8, 3, 4, 2, 5, 6, 7],
-                                      ["D", 8, 5, 9, 7, 6, 1, 4, 2, 3],
-                                      ["E", 4, 2, 6, 8, 5, 3, 7, 9, 1],
-                                      ["F", 7, 1, 3, 9, 2, 4, 8, 4, 6],
-                                      ["G", 9, 6, 1, 5, 3, 7, 2, 8, 4],
-                                      ["H", 2, 8, 7, 4, 1, 9, 6, 3, 5],
-                                      ["I", 0, 4, 5, 2, 8, 6, 1, 7, 9]]
-                            
-        self.sudoku_board_start = [[" ", "A","B","C","D","E","F","G","H","I"],
-                                   ["A", 5, 3, 0, 0, 7, 0, 0, 0, 0],
-                                   ["B", 6, 0, 0, 1, 9, 5, 0, 0, 0],
-                                   ["C", 0, 9, 8, 0, 0, 0, 0, 6, 0],
-                                   ["D", 8, 0, 0, 0, 6, 0, 0, 0, 3],
-                                   ["E", 4, 0, 0, 8, 0, 3, 0, 0, 1],
-                                   ["F", 7, 0, 0, 0, 2, 0, 0, 0, 6],
-                                   ["G", 0, 6, 0, 0, 0, 0, 2, 8, 0],
-                                   ["H", 0, 0, 0, 4, 1, 9, 0, 0, 5],
-                                   ["I", 0, 0, 0, 0, 8, 0, 0, 7, 9]]
-        self.sudoku_board_solution = [[" ", "A","B","C","D","E","F","G","H","I"],
-                                      ["A", 5, 3, 4, 6, 7, 8, 9, 1, 2],
-                                      ["B", 6, 7, 2, 1, 9, 5, 3, 4, 8],
-                                      ["C", 1, 9, 8, 3, 4, 2, 5, 6, 7],
-                                      ["D", 8, 5, 9, 7, 6, 1, 4, 2, 3],
-                                      ["E", 4, 2, 6, 8, 5, 3, 7, 9, 1],
-                                      ["F", 7, 1, 3, 9, 2, 4, 8, 4, 6],
-                                      ["G", 9, 6, 1, 5, 3, 7, 2, 8, 4],
-                                      ["H", 2, 8, 7, 4, 1, 9, 6, 3, 5],
-                                      ["I", 3, 4, 5, 2, 8, 6, 1, 7, 9]]
-                            
+ 
+class Board:
+    def __init__(self, difficulty):
+        self.clear_board()
+        self.sudoku_board, self.sudoku_board_solution = self.generate_game_board(self.generate_complete_board(), difficulty)
+        self.format_board(self.sudoku_board)
+        self.format_board(self.sudoku_board_solution) 
+                      
+    def find_spaces(self): 
+        for row in range(len(self.board)):
+            for column in range(len(self.board[0])):
+                if self.board[row][column] == 0:
+                    return (row, column)
+        return False
+
+    def check_space(self, value, space): 
+        if not self.board[space[0]][space[1]] == 0: 
+            return False
+        for column in self.board[space[0]]: 
+            if column == value:
+                return False
+        for row in range(len(self.board)): 
+            if self.board[row][space[1]] == value:
+                return False
+        internal_box_row = space[0] // 3
+        internal_box_column = space[1] // 3
+        for i in range(3): 
+            for j in range(3):
+                if self.board[i + (internal_box_row * 3)][j + (internal_box_column * 3)] == value:
+                    return False
+        return True
+
+    def solve_board(self): 
+        spaces = self.find_spaces()
+        if not spaces:
+            return True
+        else:
+            row, column = spaces
+        for n in range(1, 10):
+            if self.check_space(n, (row, column)):
+                self.board[row][column] = n	
+                if self.solve_board():
+                    return self.board
+                self.board[row][column] = 0
+        return False
+
+    def generate_game_board(self, full_board, difficulty): 
+            self.board = copy.deepcopy(full_board)
+            if difficulty == 0:
+                squares_to_remove = 26
+            elif difficulty == 1:
+                squares_to_remove = 36
+            elif difficulty == 2:
+                squares_to_remove = 46
+            else:
+                return
+            counter = 0
+            while counter < 4:
+                r_row = random.randint(0, 2)
+                r_column = random.randint(0, 2)
+                if self.board[r_row][r_column] != 0:
+                    self.board[r_row][r_column] = 0
+                    counter += 1
+            counter = 0
+            while counter < 4:
+                r_row = random.randint(3, 5)
+                r_column = random.randint(3, 5)
+                if self.board[r_row][r_column] != 0:
+                    self.board[r_row][r_column] = 0
+                    counter += 1
+            counter = 0
+            while counter < 4:
+                r_row = random.randint(6, 8)
+                r_column = random.randint(6, 8)
+                if self.board[r_row][r_column] != 0:
+                    self.board[r_row][r_column] = 0
+                    counter += 1
+            squares_to_remove -= 12
+            counter = 0
+            while counter < squares_to_remove:
+                row = random.randint(0, 8)
+                column = random.randint(0, 8)
+                if self.board[row][column] != 0:
+                    n = self.board[row][column]
+                    self.board[row][column] = 0
+                    if len(self.find_solutions()) != 1:
+                        self.board[row][column] = n
+                        continue
+                    counter += 1
+            return self.board, full_board
+
+    def generate_complete_board(self): 
+            self.clear_board()
+            l = list(range(1, 10))
+            for row in range(3):
+                for column in range(3):
+                    value = random.choice(l)
+                    self.board[row][column] = value
+                    l.remove(value)
+            l = list(range(1, 10))
+            for row in range(3, 6):
+                for column in range(3, 6):
+                    value = random.choice(l)
+                    self.board[row][column] = value
+                    l.remove(value)
+            l = list(range(1, 10))
+            for row in range(6, 9):
+                for column in range(6, 9):
+                    value = random.choice(l)
+                    self.board[row][column] = value
+                    l.remove(value)
+            return self.generate_random_board()
+
+    def generate_random_board(self): 
+        for row in range(len(self.board)):
+            for column in range(len(self.board[row])):
+                if self.board[row][column] == 0:
+                    value = random.randint(1, 9)
+                    if self.check_space(value, (row, column)):
+                        self.board[row][column] = value
+                        if self.solve_board():
+                            self.generate_random_board()
+                            return self.board
+                        self.board[row][column] = 0
+        return False
+
+    def find_solutions(self): 
+            z = 0
+            list_of_solutions = []
+            for row in range(len(self.board)):
+                for column in range(len(self.board[row])):
+                    if self.board[row][column] == 0:
+                        z += 1
+            for i in range(1, z+1):
+                board_copy = copy.deepcopy(self)
+                row, column = self.find_spaces_for_solutions(board_copy.board, i)
+                board_copy_solution = "".join([str(i) for j in (board_copy.solve_for_solutions(row, column)) for i in j])
+                list_of_solutions.append(board_copy_solution)
+            return list(set(list_of_solutions))
+
+    def find_spaces_for_solutions(self, board, h): 
+        k = 1
+        for row in range(len(board)):
+            for column in range(len(board[row])):
+                if board[row][column] == 0:
+                    if k == h:
+                        return (row, column)
+                    k += 1
+        return False
+
+    def solve_for_solutions(self, row, column): 
+        for n in range(1, 10):
+            if self.check_space(n, (row, column)):
+                self.board[row][column] = n
+                if self.solve_board():
+                    return self.board
+                self.board[row][column] = 0
+        return False
+
+    def clear_board(self): 
+        self.board = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        return self.board
+
+    def format_board(self, board):
+        board.insert(0,[" ", "A","B","C","D","E","F","G","H","I"])
+        board[1].insert(0, "A")
+        board[2].insert(0, "B")
+        board[3].insert(0, "C")
+        board[4].insert(0, "D")
+        board[5].insert(0, "E")
+        board[6].insert(0, "F")
+        board[7].insert(0, "G")
+        board[8].insert(0, "H")
+        board[9].insert(0, "I")         
+        
 class Menu:
     def __init__(self):
         self.previous_games = {}
-        self.menu_options = {
-            1: "Traditional Sudoku",
+        self.main_menu_options = {
+            1: "Play Sudoku",
             2: "Instructions",
             3: "Replay",
             4: "Exit",
         }
-        input("\n Welcome to Sudoku! (Hit any key to continue)")
+        self.game_menu_options = {
+            1: "Enter value",
+            2: "Undo move",
+            3: "Redo move",
+            4: "Submit board",
+            5: "Exit to menu"
+        }
+        self.difficulty_menu_options = {
+            1: "Easy",
+            2: "Medium",
+            3: "Hard"
+        }
         
-    def get_input(self):
+    def get_input(self, menu):
         while(True):
-            self.print_menu()
+            self.print_menu(menu)
             option = ""
             try:
                 option = int(input("\n Please choose an option: "))
@@ -69,7 +224,7 @@ class Menu:
    
     def display_option(self):
         while(True):
-            option = self.get_input()
+            option = self.get_input(self.main_menu_options)
             if option == 1:
                 self.option1()
                 break
@@ -85,10 +240,15 @@ class Menu:
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
    
-    def print_menu(self):
-        print("\n Home Menu:")
-        for key in self.menu_options.keys():
-            print ("", key, "-", self.menu_options[key] )
+    def print_menu(self, menu):
+        if (menu == self.main_menu_options):
+            print("\n Home Menu:")
+        elif (menu == self.game_menu_options):
+            print("\n Game Menu:")
+        elif (menu == self.difficulty_menu_options):
+            print("\n Choose a difficulty:")
+        for key in menu.keys():
+            print ("", key, "-", menu[key] )
 
     def print_replay_menu(self):
         print("\n Previous Games:")
@@ -106,12 +266,20 @@ class Menu:
             else:
                 input("\n Invalid input - Please enter the name of the game you would like to replay or 'menu' to return to the main menu ")
         
+    def get_difficulty(self):
+        while True:
+            difficulty = self.get_input(self.difficulty_menu_options)
+            if difficulty >= 1 and difficulty <= len(self.difficulty_menu_options):
+                return difficulty
+            else:
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+    
     def option1(self):
+        difficulty = (self.get_difficulty()) - 1
         current_game = Game()
-        game_moves = Game().new_game()
+        game_moves = Game().new_game(difficulty)
         if (game_moves != "exit"):
             self.previous_games[game_moves[0]] = game_moves[1]
-        print(self.previous_games)
         self.display_option()
          
     def option2(self):
@@ -129,12 +297,12 @@ class Menu:
         self.display_option()  
         
 class Game:
-    def new_game(self):
-        boards = Boards()
+    def new_game(self, difficulty):
+        boards = Board(difficulty)
         self.game_board = boards.sudoku_board
-        self.start_board = boards.sudoku_board_start
+        self.start_board = copy.deepcopy(self.game_board)
         self.solution_board = boards.sudoku_board_solution
-        self.menu = Game_Menu()
+        self.menu = Menu()
         self.undo_stack = []
         self.redo_stack = []
         self.moves = []
@@ -147,7 +315,7 @@ class Game:
         self.column = 0
         while True:
             self.print_board(self.game_board)
-            choice = self.menu.get_input()
+            choice = self.menu.get_input(self.menu.game_menu_options)
             if(choice == 1):
                 self.game_input()
                 self.insert_value()
@@ -275,33 +443,7 @@ class Game:
             input("")
             print(" Move "+str(i)+":")
             self.print_board(self.replay_board)
-            i += 1
-                       
-class Game_Menu:
-    def __init__(self):
-        self.menu_options = {
-            1: "Enter value",
-            2: "Undo move",
-            3: "Redo move",
-            4: "Submit board",
-            5: "Exit to menu"
-        }
-        
-    def get_input(self):
-        while(True):
-            self.print_menu()
-            option = ""
-            try:
-                option = int(input("\n Please choose an option: "))
-                return option
-                break
-            except:
-                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
-   
-    def print_menu(self):
-        print("\n Game Menu:")
-        for key in self.menu_options.keys():
-            print ("", key, "-", self.menu_options[key] )
+            i += 1                       
      
 if __name__ == "__main__":
     main()

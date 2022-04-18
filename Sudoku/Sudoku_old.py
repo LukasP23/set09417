@@ -217,7 +217,7 @@ class Menu:
             self.print_menu()
             option = ""
             try:
-                option = int(input("\nPlease choose a gamemode: "))
+                    option = int(input("\nPlease choose a gamemode: "))
                 return option
                 break
             except:
