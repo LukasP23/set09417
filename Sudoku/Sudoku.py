@@ -54,11 +54,11 @@ class Board:
     def generate_game_board(self, full_board, difficulty): 
             self.board = copy.deepcopy(full_board)
             if difficulty == 0:
-                squares_to_remove = 26
+                squares_to_remove = 24
             elif difficulty == 1:
                 squares_to_remove = 36
             elif difficulty == 2:
-                squares_to_remove = 46
+                squares_to_remove = 48
             else:
                 return
             counter = 0
@@ -193,6 +193,7 @@ class Board:
 class Menu:
     def __init__(self):
         self.previous_games = {}
+        self.previous_boards = {}
         self.main_menu_options = {
             1: "Play Sudoku",
             2: "Instructions",
@@ -264,7 +265,7 @@ class Menu:
             if(game_key == "menu" or game_key in self.previous_games):
                 return game_key
             else:
-                input("\n Invalid input - Please enter the name of the game you would like to replay or 'menu' to return to the main menu ")
+                input("\n Invalid input - Please enter the name of the game you would like to replay or 'menu' to return to the main menu!")
         
     def get_difficulty(self):
         while True:
@@ -280,6 +281,7 @@ class Menu:
         game_moves = Game().new_game(difficulty)
         if (game_moves != "exit"):
             self.previous_games[game_moves[0]] = game_moves[1]
+            self.previous_boards[game_moves[0]] = game_moves[2]
         self.display_option()
          
     def option2(self):
@@ -293,7 +295,9 @@ class Menu:
                 break
             else:
                 replay_game = Game()
-                replay_game.replay(self.previous_games[game_key])
+                self.initial_board = copy.deepcopy(self.previous_boards[game_key])
+                replay_game.replay(self.previous_games[game_key], self.previous_boards[game_key])
+                self.previous_boards[game_key] = copy.deepcopy(self.initial_board)
         self.display_option()  
         
 class Game:
@@ -328,7 +332,7 @@ class Game:
                     self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
                     while (self.game_name == ""):
                         self.game_name = input("\n Game name cannot be empty, please try again: ")
-                    return [self.game_name, self.moves]
+                    return [self.game_name, self.moves, self.start_board]
                 else:
                     input("\n Not quite - keep trying!")
             elif(choice == 5):
@@ -432,18 +436,16 @@ class Game:
             self.undo_stack.append(last_undo)
             self.moves.append([redo_row, redo_column, redo_value])
                    
-    def replay(self, moves):
-        boards = Boards()
-        self.replay_board = boards.sudoku_board
-        self.print_board(self.replay_board)
+    def replay(self, moves, board):
+        self.print_board(board)
         print("\n Press any key to cycle through each move of the replay!")
         i = 1
         for move in moves:
-            self.replay_board[move[0]][move[1]] = move[2]
+            board[move[0]][move[1]] = move[2]
             input("")
             print(" Move "+str(i)+":")
-            self.print_board(self.replay_board)
-            i += 1                       
+            self.print_board(board)
+            i += 1     
      
 if __name__ == "__main__":
     main()
