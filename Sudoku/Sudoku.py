@@ -204,8 +204,9 @@ class Menu:
             1: "Enter value",
             2: "Undo move",
             3: "Redo move",
-            4: "Submit board",
-            5: "Exit to menu"
+            4: "Reveal value",
+            5: "Submit board",
+            6: "Give up and reveal solution"
         }
         self.difficulty_menu_options = {
             1: "Easy",
@@ -254,7 +255,7 @@ class Menu:
     def print_replay_menu(self):
         print("\n Previous Games:")
         if (len(self.previous_games) == 0):
-            print("\n You do not have any saved games to replay!")
+            print("\n You do not have any completed games to replay!")
         for key in self.previous_games.keys():
             print (" -", key)
      
@@ -328,6 +329,8 @@ class Game:
             elif(choice == 3):
                 self.redo()
             elif(choice == 4):
+                self.hint()
+            elif(choice == 5):
                 if(self.submit_board()):
                     self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
                     while (self.game_name == ""):
@@ -335,10 +338,13 @@ class Game:
                     return [self.game_name, self.moves, self.start_board]
                 else:
                     input("\n Not quite - keep trying!")
-            elif(choice == 5):
-                return "exit"
-            else:
-                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+            elif(choice == 6):
+                self.print_board(self.solution_board)
+                self.game_name = input("\n Solution revealed, you'll get it next time! Enter a name to save with this game so you can play it back later: ")
+                while (self.game_name == ""):
+                    self.game_name = input("\n Game name cannot be empty, please try again: ")
+                return [self.game_name, self.moves, self.start_board]
+      
     
     def print_board(self, board):
         count = -1
@@ -423,6 +429,7 @@ class Game:
             self.game_board[undo_row][undo_column] = undo_value
             self.moves.append([undo_row, undo_column, undo_value])
             self.redo_stack.append(last_move)
+            print("\n Move undone!")
             
     def redo(self):
         if (len(self.redo_stack) == 0 ):
@@ -435,6 +442,7 @@ class Game:
             self.game_board[redo_row][redo_column] = redo_value
             self.undo_stack.append(last_undo)
             self.moves.append([redo_row, redo_column, redo_value])
+            print("\n Move redone!")
                    
     def replay(self, moves, board):
         self.print_board(board)
@@ -447,5 +455,23 @@ class Game:
             self.print_board(board)
             i += 1     
      
+    def hint(self):
+        if self.get_first_zero() is False:
+            print("\n There are no 0 values left on the board!")
+        else:    
+            row, column = self.get_first_zero()
+            value = self.solution_board[row][column]
+            self.undo_stack.append([row, column, value, self.game_board[row][column]])
+            self.game_board[row][column] = value
+            self.moves.append([row, column, value])
+            print("\n Value revealed!")
+        
+    def get_first_zero(self):
+        for row in self.game_board:
+            for value in row:
+                if value == 0:
+                    return self.game_board.index(row), row.index(value)
+        return False
+        
 if __name__ == "__main__":
     main()
