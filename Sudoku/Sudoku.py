@@ -1,5 +1,6 @@
 import copy
 import random
+import time
 
 def main():
     input("\n Welcome to Sudoku! (Hit any key to continue)")
@@ -194,17 +195,20 @@ class Menu:
     def __init__(self):
         self.previous_games = {}
         self.previous_boards = {}
+        self.previous_solutions = {}
+        self.time_leaderboard = {}
         self.main_menu_options = {
             1: "Play Sudoku",
             2: "Instructions",
             3: "Replay",
-            4: "Exit",
+            4: "Time leaderboard",
+            5: "Exit",
         }
         self.game_menu_options = {
             1: "Enter value",
             2: "Undo move",
             3: "Redo move",
-            4: "Reveal value",
+            4: "Reveal a value",
             5: "Submit board",
             6: "Give up and reveal solution"
         }
@@ -213,7 +217,12 @@ class Menu:
             2: "Medium",
             3: "Hard"
         }
-        
+        self.game_mode_menu_options = {
+            1: "Traditional",
+            2: "Five Lives",
+            3: "Timed"
+        }
+         
     def get_input(self, menu):
         while(True):
             self.print_menu(menu)
@@ -237,6 +246,9 @@ class Menu:
                 self.option3()
                 break
             elif option == 4:
+                self.option4()
+                break
+            elif option == 5:
                 input("\n Thanks for playing!")
                 exit()
             else:
@@ -249,13 +261,13 @@ class Menu:
             print("\n Game Menu:")
         elif (menu == self.difficulty_menu_options):
             print("\n Choose a difficulty:")
+        elif (menu == self.game_mode_menu_options):
+            print("\n Choose a game mode:")
         for key in menu.keys():
             print ("", key, "-", menu[key] )
 
     def print_replay_menu(self):
         print("\n Previous Games:")
-        if (len(self.previous_games) == 0):
-            print("\n You do not have any completed games to replay!")
         for key in self.previous_games.keys():
             print (" -", key)
      
@@ -276,13 +288,28 @@ class Menu:
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
     
+    def get_game_mode(self):
+        while True:
+            mode = self.get_input(self.game_mode_menu_options)
+            if mode == 1:
+                return "traditional"
+            if mode == 2:
+                return "lives"
+            if mode == 3:
+                return "timer"
+            else:
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+          
     def option1(self):
+        game_mode = self.get_game_mode()
         difficulty = (self.get_difficulty()) - 1
         current_game = Game()
-        game_moves = Game().new_game(difficulty)
-        if (game_moves != "exit"):
-            self.previous_games[game_moves[0]] = game_moves[1]
-            self.previous_boards[game_moves[0]] = game_moves[2]
+        game_moves = current_game.new_game(difficulty, game_mode)
+        self.previous_games[game_moves[0]] = game_moves[1]
+        self.previous_boards[game_moves[0]] = game_moves[2]
+        self.previous_solutions[game_moves[0]] = game_moves[3]
+        if(game_mode == "timer"):
+            self.time_leaderboard[game_moves[0]] = game_moves[4]
         self.display_option()
          
     def option2(self):
@@ -290,19 +317,33 @@ class Menu:
         self.display_option()
          
     def option3(self):
-        while(True):
-            game_key = self.get_replay_input()
-            if (game_key == "menu"):
-                break
-            else:
-                replay_game = Game()
-                self.initial_board = copy.deepcopy(self.previous_boards[game_key])
-                replay_game.replay(self.previous_games[game_key], self.previous_boards[game_key])
-                self.previous_boards[game_key] = copy.deepcopy(self.initial_board)
+        if (len(self.previous_games) == 0):
+            input("\n You do not have any completed games to replay!")
+        else:
+            while(True):
+                game_key = self.get_replay_input()
+                if (game_key == "menu"):
+                    break
+                else:
+                    replay_game = Game()
+                    self.initial_board = copy.deepcopy(self.previous_boards[game_key])
+                    replay_game.replay(self.previous_games[game_key], self.previous_boards[game_key], self.previous_solutions[game_key])
+                    self.previous_boards[game_key] = copy.deepcopy(self.initial_board)
         self.display_option()  
         
+    def option4(self):
+        if(len(self.time_leaderboard) == 0):
+            input("\n Leaderboard is empty!")
+        else:
+            print("\n Leaderboard:")
+            sort_list = sorted(self.time_leaderboard.items(), key=lambda x:x[1])
+            leaderboard = dict(sort_list)
+            self.print_menu(leaderboard)
+            input("\n Hit any key to return to the main menu")
+        self.display_option() 
+    
 class Game:
-    def new_game(self, difficulty):
+    def new_game(self, difficulty, game_mode):
         boards = Board(difficulty)
         self.game_board = boards.sudoku_board
         self.start_board = copy.deepcopy(self.game_board)
@@ -318,12 +359,32 @@ class Game:
         self.input_column = ""
         self.row = 0
         self.column = 0
+        lives = 5
+        if (game_mode == "timer"):
+            t0 = time.time()
+            print ("\n The time is on!")
         while True:
             self.print_board(self.game_board)
+            if (game_mode == "lives"):
+                print("\n Lives: "+str(lives))
             choice = self.menu.get_input(self.menu.game_menu_options)
             if(choice == 1):
                 self.game_input()
-                self.insert_value()
+                if(game_mode == "lives"):
+                    if self.check_move() is True:
+                        self.insert_value()
+                        print("\n Correct!")
+                    else:
+                        print("\n Incorrect! you lost a life!")
+                        lives -= 1
+                        if(lives == 0):
+                            self.print_board(self.solution_board)
+                            self.game_name = input("\n You ran out of lives! Enter a name to save with this game so you can play it back later: ")
+                            while (self.game_name == ""):
+                                self.game_name = input("\n Game name cannot be empty, please try again: ")
+                            return [self.game_name, self.moves, self.start_board, self.solution_board]
+                elif(game_mode == "traditional"):    
+                    self.insert_value()
             elif(choice == 2):
                 self.undo()
             elif(choice == 3):
@@ -332,20 +393,33 @@ class Game:
                 self.hint()
             elif(choice == 5):
                 if(self.submit_board()):
+                    if (game_mode == "timer"):
+                        t1 = time.time()
+                        final_time = t1-t0
                     self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
                     while (self.game_name == ""):
                         self.game_name = input("\n Game name cannot be empty, please try again: ")
-                    return [self.game_name, self.moves, self.start_board]
+                    if (game_mode == "timer"): 
+                        input("\n Final time: "+str(round(final_time, 2))+"seconds")
+                        return [self.game_name, self.moves, self.start_board, self.solution_board, final_time]
+                    else:
+                        return [self.game_name, self.moves, self.start_board, self.solution_board]
                 else:
                     input("\n Not quite - keep trying!")
             elif(choice == 6):
+                if (game_mode == "timer"):
+                    t1 = time.time()
+                    final_time = t1-t0
                 self.print_board(self.solution_board)
                 self.game_name = input("\n Solution revealed, you'll get it next time! Enter a name to save with this game so you can play it back later: ")
                 while (self.game_name == ""):
                     self.game_name = input("\n Game name cannot be empty, please try again: ")
-                return [self.game_name, self.moves, self.start_board]
-      
-    
+                if (game_mode == "timer"): 
+                    input("\n Final time: "+str(round(final_time, 2))+"seconds")
+                    return [self.game_name, self.moves, self.start_board, self.solution_board, final_time]
+                else:
+                    return [self.game_name, self.moves, self.start_board, self.solution_board]
+         
     def print_board(self, board):
         count = -1
         print("\n -----------------------------")
@@ -412,6 +486,12 @@ class Game:
         else:
             input("\n This is a set value - try again!")   
             
+    def check_move(self):
+        if(self.value == self.solution_board[self.row][self.column]):
+            return True
+        else:
+            return False
+    
     def submit_board(self):
         if(self.game_board == self.solution_board):
             return True
@@ -444,16 +524,19 @@ class Game:
             self.moves.append([redo_row, redo_column, redo_value])
             print("\n Move redone!")
                    
-    def replay(self, moves, board):
-        self.print_board(board)
+    def replay(self, moves, board, solution_board):
         print("\n Press any key to cycle through each move of the replay!")
+        print(" Start board:")
+        self.print_board(board)
         i = 1
         for move in moves:
             board[move[0]][move[1]] = move[2]
             input("")
             print(" Move "+str(i)+":")
             self.print_board(board)
-            i += 1     
+            i += 1   
+        print("\n Final board:")
+        self.print_board(solution_board)
      
     def hint(self):
         if self.get_first_zero() is False:
