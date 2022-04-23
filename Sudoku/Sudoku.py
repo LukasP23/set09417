@@ -1,13 +1,15 @@
 import copy
 import random
 import time
+import datetime
+from collections import deque
 
 def main():
     input("\n Welcome to Sudoku! (Hit any key to continue)")
     menu = Menu()
     menu.display_option()
  
-class Board:
+class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. Adapated from ...
     def __init__(self, difficulty):
         self.clear_board()
         self.sudoku_board, self.sudoku_board_solution = self.generate_game_board(self.generate_complete_board(), difficulty)
@@ -191,7 +193,7 @@ class Board:
         board[8].insert(0, "H")
         board[9].insert(0, "I")         
         
-class Menu:
+class Menu: #Displays and recieves input for the multiple menu's used in the game. Adapted from ...
     def __init__(self):
         self.previous_games = {}
         self.previous_boards = {}
@@ -339,10 +341,10 @@ class Menu:
             sort_list = sorted(self.time_leaderboard.items(), key=lambda x:x[1])
             leaderboard = dict(sort_list)
             self.print_menu(leaderboard)
-            input("\n Hit any key to return to the main menu")
+            input("\n Hit any key to return to the main menu!")
         self.display_option() 
     
-class Game:
+class Game: #Runs a game of Sudoku and handles the multiple options given to the user throughout the game.
     def new_game(self, difficulty, game_mode):
         boards = Board(difficulty)
         self.game_board = boards.sudoku_board
@@ -351,7 +353,7 @@ class Game:
         self.menu = Menu()
         self.undo_stack = []
         self.redo_stack = []
-        self.moves = []
+        self.moves = deque()
         self.game_name = ""
         self.value = 0
         self.old_value = 0
@@ -395,12 +397,13 @@ class Game:
                 if(self.submit_board()):
                     if (game_mode == "timer"):
                         t1 = time.time()
-                        final_time = t1-t0
+                        time_seconds = round(t1-t, 0)
+                        final_time = str(datetime.timedelta(seconds = time_seconds))
                     self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
                     while (self.game_name == ""):
                         self.game_name = input("\n Game name cannot be empty, please try again: ")
                     if (game_mode == "timer"): 
-                        input("\n Final time: "+str(round(final_time, 2))+"seconds")
+                        input("\n Final time: "+final_time)
                         return [self.game_name, self.moves, self.start_board, self.solution_board, final_time]
                     else:
                         return [self.game_name, self.moves, self.start_board, self.solution_board]
@@ -409,13 +412,14 @@ class Game:
             elif(choice == 6):
                 if (game_mode == "timer"):
                     t1 = time.time()
-                    final_time = t1-t0
+                    time_seconds = round(t1-t0, 0)
+                    final_time = str(datetime.timedelta(seconds = time_seconds))
                 self.print_board(self.solution_board)
                 self.game_name = input("\n Solution revealed, you'll get it next time! Enter a name to save with this game so you can play it back later: ")
                 while (self.game_name == ""):
                     self.game_name = input("\n Game name cannot be empty, please try again: ")
                 if (game_mode == "timer"): 
-                    input("\n Final time: "+str(round(final_time, 2))+"seconds")
+                    input("\n Final time: "+final_time)
                     return [self.game_name, self.moves, self.start_board, self.solution_board, final_time]
                 else:
                     return [self.game_name, self.moves, self.start_board, self.solution_board]
