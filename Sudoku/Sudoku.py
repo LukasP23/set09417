@@ -3,27 +3,30 @@ import random
 import time
 import datetime
 from collections import deque
+import os
 
 def main():
+    clearConsole()
     input("\n Welcome to Sudoku! (Hit any key to continue)")
+    clearConsole()
     menu = Menu()
     menu.display_option()
  
-class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. Adapated from ...
-    def __init__(self, difficulty):
+class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. Adapated from Kush, 2021.
+    def __init__(self, difficulty): #Initiates Board object.
         self.clear_board()
         self.sudoku_board, self.sudoku_board_solution = self.generate_game_board(self.generate_complete_board(), difficulty)
         self.format_board(self.sudoku_board)
         self.format_board(self.sudoku_board_solution) 
                       
-    def find_spaces(self): 
+    def find_spaces(self): #Finds any 0 values in the board and returns the index.
         for row in range(len(self.board)):
             for column in range(len(self.board[0])):
                 if self.board[row][column] == 0:
                     return (row, column)
         return False
 
-    def check_space(self, value, space): 
+    def check_space(self, value, space): #Checks if a value can be valid in a certain square.
         if not self.board[space[0]][space[1]] == 0: 
             return False
         for column in self.board[space[0]]: 
@@ -40,7 +43,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                     return False
         return True
 
-    def solve_board(self): 
+    def solve_board(self): #Solves a Sudoku board using recursion and returns the board is solvable.
         spaces = self.find_spaces()
         if not spaces:
             return True
@@ -54,7 +57,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                 self.board[row][column] = 0
         return False
 
-    def generate_game_board(self, full_board, difficulty): 
+    def generate_game_board(self, full_board, difficulty): #Generates a valid sudoku board with a certain number of values removed depending on the chosen difficulty, returns this board and a complete board.
             self.board = copy.deepcopy(full_board)
             if difficulty == 0:
                 squares_to_remove = 24
@@ -99,7 +102,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                     counter += 1
             return self.board, full_board
 
-    def generate_complete_board(self): 
+    def generate_complete_board(self): #Generates a completed Sudoku board.
             self.clear_board()
             l = list(range(1, 10))
             for row in range(3):
@@ -121,7 +124,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                     l.remove(value)
             return self.generate_random_board()
 
-    def generate_random_board(self): 
+    def generate_random_board(self): #Generates a random Sudoku board with random values for each square.
         for row in range(len(self.board)):
             for column in range(len(self.board[row])):
                 if self.board[row][column] == 0:
@@ -134,7 +137,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                         self.board[row][column] = 0
         return False
 
-    def find_solutions(self): 
+    def find_solutions(self): #Finds all possible solutions for a prospect Sudoku board and returns them.
             z = 0
             list_of_solutions = []
             for row in range(len(self.board)):
@@ -148,7 +151,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                 list_of_solutions.append(board_copy_solution)
             return list(set(list_of_solutions))
 
-    def find_spaces_for_solutions(self, board, h): 
+    def find_spaces_for_solutions(self, board, h): #Finds all empty spaces in a board and is needed for find_solutions.
         k = 1
         for row in range(len(board)):
             for column in range(len(board[row])):
@@ -158,7 +161,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                     k += 1
         return False
 
-    def solve_for_solutions(self, row, column): 
+    def solve_for_solutions(self, row, column): #Solves a Sudoku board using recusrion, is needed for find_solutions.
         for n in range(1, 10):
             if self.check_space(n, (row, column)):
                 self.board[row][column] = n
@@ -167,7 +170,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
                 self.board[row][column] = 0
         return False
 
-    def clear_board(self): 
+    def clear_board(self): #Clears the board variable.
         self.board = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -181,7 +184,7 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
         ]
         return self.board
 
-    def format_board(self, board):
+    def format_board(self, board): #Formats a Sudoku Board to be compatable with the Game object.
         board.insert(0,[" ", "A","B","C","D","E","F","G","H","I"])
         board[1].insert(0, "A")
         board[2].insert(0, "B")
@@ -193,8 +196,8 @@ class Board: #Generates and returns an easy, medium, or hard 9x9 Sudoku board. A
         board[8].insert(0, "H")
         board[9].insert(0, "I")         
         
-class Menu: #Displays and recieves input for the multiple menu's used in the game. Adapted from ...
-    def __init__(self):
+class Menu: #Displays and recieves input for the multiple menu's used in the game. Adapted from Rafael, 2021.
+    def __init__(self): #Initiates the Menu object.
         self.previous_games = {}
         self.previous_boards = {}
         self.previous_solutions = {}
@@ -225,9 +228,9 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
             3: "Timed"
         }
          
-    def get_input(self, menu):
+    def get_input(self, menu): #Gets the users input and validates that it is an int.
+        self.print_menu(menu)
         while(True):
-            self.print_menu(menu)
             option = ""
             try:
                 option = int(input("\n Please choose an option: "))
@@ -235,28 +238,36 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
             except:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
    
-    def display_option(self):
+    def display_option(self): #Runs the relevant method depending on the users input for the main menu.
         while(True):
+            clearConsole()
             option = self.get_input(self.main_menu_options)
             if option == 1:
-                self.option1()
+                clearConsole()
+                self.play_game()
                 break
             elif option == 2:
-                self.option2()
+                clearConsole()
+                self.instructions()
                 break
             elif option == 3:
-                self.option3()
+                clearConsole()
+                self.replay()
                 break
             elif option == 4:
-                self.option4()
+                clearConsole()
+                self.leaderboard()
                 break
             elif option == 5:
+                clearConsole()
                 input("\n Thanks for playing!")
+                clearConsole()
                 exit()
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+                clearConsole()
    
-    def print_menu(self, menu):
+    def print_menu(self, menu): #Prints the relevant menu.
         if (menu == self.main_menu_options):
             print("\n Home Menu:")
         elif (menu == self.game_menu_options):
@@ -268,12 +279,12 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
         for key in menu.keys():
             print ("", key, "-", menu[key] )
 
-    def print_replay_menu(self):
+    def print_replay_menu(self): #Prints the replay menu.
         print("\n Previous Games:")
         for key in self.previous_games.keys():
             print (" -", key)
      
-    def get_replay_input(self):
+    def get_replay_input(self): #Gets the users input for the replay menu and validates it.
         self.print_replay_menu()
         while True:
             game_key = input("\n Enter the name of the game you would like to replay or 'menu' to return to the main menu: ")
@@ -282,15 +293,16 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
             else:
                 input("\n Invalid input - Please enter the name of the game you would like to replay or 'menu' to return to the main menu!")
         
-    def get_difficulty(self):
+    def get_difficulty(self): #Gets the users input for game difficulty.
         while True:
             difficulty = self.get_input(self.difficulty_menu_options)
             if difficulty >= 1 and difficulty <= len(self.difficulty_menu_options):
                 return difficulty
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
-    
-    def get_game_mode(self):
+                clearConsole()
+                
+    def get_game_mode(self): #Gets the users input for game mode.
         while True:
             mode = self.get_input(self.game_mode_menu_options)
             if mode == 1:
@@ -301,28 +313,34 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
                 return "timer"
             else:
                 input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
-          
-    def option1(self):
+                clearConsole()
+                
+    def play_game(self): #Starts a new game and then saves all returned values once finished.
         game_mode = self.get_game_mode()
+        clearConsole()
         difficulty = (self.get_difficulty()) - 1
         current_game = Game()
         game_moves = current_game.new_game(difficulty, game_mode)
-        self.previous_games[game_moves[0]] = game_moves[1]
-        self.previous_boards[game_moves[0]] = game_moves[2]
-        self.previous_solutions[game_moves[0]] = game_moves[3]
-        if(game_mode == "timer"):
-            self.time_leaderboard[game_moves[0]] = game_moves[4]
+        game_name = input("\n Enter a name to save with this game so you can play it back later: ")
+        while (game_name == "" or game_name in self.previous_games):
+            game_name = input("\n Game name cannot be empty or the same as a previous game, please try again: ")
+        self.previous_games[game_name] = game_moves[0]
+        self.previous_boards[game_name] = game_moves[1]
+        self.previous_solutions[game_name] = game_moves[2]
+        if(game_mode == "timer" and game_moves[3] != 0):
+            self.time_leaderboard[game_name] = game_moves[3]
         self.display_option()
          
-    def option2(self):
-        input(" Intructions:\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 3. You cannot enter a value in a square that is populated at the beginning of the game.\n 4. Once you think you have finished you can use the game menu to submit your board to be checked.")
+    def instructions(self): #Prints the instructions
+        input("\n Intructions:\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 3. You cannot enter a value in a square that is populated at the beginning of the game.\n 4. Once you think you have finished you can use the game menu to submit your board to be checked.")
         self.display_option()
          
-    def option3(self):
+    def replay(self): #Displays the users previously saved games and allows them to replay them.
         if (len(self.previous_games) == 0):
             input("\n You do not have any completed games to replay!")
         else:
             while(True):
+                clearConsole()
                 game_key = self.get_replay_input()
                 if (game_key == "menu"):
                     break
@@ -333,7 +351,7 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
                     self.previous_boards[game_key] = copy.deepcopy(self.initial_board)
         self.display_option()  
         
-    def option4(self):
+    def leaderboard(self): #Displays the leaderboard of previous times taken to complete a game.
         if(len(self.time_leaderboard) == 0):
             input("\n Leaderboard is empty!")
         else:
@@ -344,8 +362,8 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
             input("\n Hit any key to return to the main menu!")
         self.display_option() 
     
-class Game: #Runs a game of Sudoku and handles the multiple options given to the user throughout the game.
-    def new_game(self, difficulty, game_mode):
+class Game: #Runs a game of Sudoku and handles the multiple options given to the user throughout the game
+    def new_game(self, difficulty, game_mode): #Handles the running of a game, calls the relevant methods throughout and then returns the relevant values to be saved.
         boards = Board(difficulty)
         self.game_board = boards.sudoku_board
         self.start_board = copy.deepcopy(self.game_board)
@@ -366,6 +384,7 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
             t0 = time.time()
             print ("\n The time is on!")
         while True:
+            clearConsole()
             self.print_board(self.game_board)
             if (game_mode == "lives"):
                 print("\n Lives: "+str(lives))
@@ -375,16 +394,15 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
                 if(game_mode == "lives"):
                     if self.check_move() is True:
                         self.insert_value()
-                        print("\n Correct!")
+                        input("\n Correct!")
                     else:
-                        print("\n Incorrect! you lost a life!")
+                        input("\n Incorrect! you lost a life")
                         lives -= 1
                         if(lives == 0):
+                            clearConsole()
                             self.print_board(self.solution_board)
-                            self.game_name = input("\n You ran out of lives! Enter a name to save with this game so you can play it back later: ")
-                            while (self.game_name == ""):
-                                self.game_name = input("\n Game name cannot be empty, please try again: ")
-                            return [self.game_name, self.moves, self.start_board, self.solution_board]
+                            input("\n You ran out of lives!  - solution revealed!")                            
+                            return [self.moves, self.start_board, self.solution_board]
                 elif(game_mode == "traditional"):    
                     self.insert_value()
             elif(choice == 2):
@@ -397,34 +415,31 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
                 if(self.submit_board()):
                     if (game_mode == "timer"):
                         t1 = time.time()
-                        time_seconds = round(t1-t, 0)
+                        time_seconds = round(t1-t0, 0)
                         final_time = str(datetime.timedelta(seconds = time_seconds))
-                    self.game_name = input("\n Correct - Well Done! Enter a name to save with this game so you can play it back later: ")
-                    while (self.game_name == ""):
-                        self.game_name = input("\n Game name cannot be empty, please try again: ")
+                    input("\n Correct - well done!")
                     if (game_mode == "timer"): 
                         input("\n Final time: "+final_time)
-                        return [self.game_name, self.moves, self.start_board, self.solution_board, final_time]
+                        return [self.moves, self.start_board, self.solution_board, final_time]
                     else:
-                        return [self.game_name, self.moves, self.start_board, self.solution_board]
+                        return [self.moves, self.start_board, self.solution_board]
                 else:
                     input("\n Not quite - keep trying!")
             elif(choice == 6):
+                clearConsole()
                 if (game_mode == "timer"):
-                    t1 = time.time()
-                    time_seconds = round(t1-t0, 0)
-                    final_time = str(datetime.timedelta(seconds = time_seconds))
+                    final_time = 0
                 self.print_board(self.solution_board)
-                self.game_name = input("\n Solution revealed, you'll get it next time! Enter a name to save with this game so you can play it back later: ")
-                while (self.game_name == ""):
-                    self.game_name = input("\n Game name cannot be empty, please try again: ")
+                input("\n Solution revealed - you'll get it next time!")
                 if (game_mode == "timer"): 
-                    input("\n Final time: "+final_time)
-                    return [self.game_name, self.moves, self.start_board, self.solution_board, final_time]
+                    return [self.moves, self.start_board, self.solution_board, final_time]
                 else:
-                    return [self.game_name, self.moves, self.start_board, self.solution_board]
-         
-    def print_board(self, board):
+                    return [self.moves, self.start_board, self.solution_board]
+            else:
+                input("\n Invalid input - Please enter a number that corresponds to a displayed option!")
+                clearConsole()
+                        
+    def print_board(self, board): #Formats and prints a Sudoku board.
         count = -1
         print("\n -----------------------------")
         for i in board:
@@ -435,7 +450,7 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
                 print(" -----------------------------")
                 count = 0
                 
-    def game_input(self):
+    def game_input(self): #Gets users input to allow them to enter a value in the board.
         while True:
             self.input_row = input("\n Enter row: ").upper()
             self.row = self.convert_value(self.input_row)
@@ -458,7 +473,7 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
             except:
                 input("\n Invalid input - Please enter a number from 1 to 9!")
         
-    def convert_value(self, value):
+    def convert_value(self, value): #Coverts entered row/column values to relevant index.
         output = 0
         if (value == "A"):
             output = 1
@@ -480,7 +495,7 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
             output = 9        
         return output
             
-    def insert_value(self):
+    def insert_value(self): #Inserts a value into a position on the Sudoku board.
         if (self.start_board[self.row][self.column] == 0):
             self.old_value = self.game_board[self.row][self.column]
             self.game_board[self.row][self.column] = self.value
@@ -490,19 +505,19 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
         else:
             input("\n This is a set value - try again!")   
             
-    def check_move(self):
+    def check_move(self): #Checks if an entered value is correct, only used for Lives game mode.
         if(self.value == self.solution_board[self.row][self.column]):
             return True
         else:
             return False
     
-    def submit_board(self):
+    def submit_board(self): #Checks if a submitted board is correct.
         if(self.game_board == self.solution_board):
             return True
         else:
             return False
    
-    def undo(self):
+    def undo(self): #Undoes the users last move. 
         if (len(self.undo_stack) == 0 ):
             input("\n There are no moves to undo!")
         else:
@@ -513,9 +528,8 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
             self.game_board[undo_row][undo_column] = undo_value
             self.moves.append([undo_row, undo_column, undo_value])
             self.redo_stack.append(last_move)
-            print("\n Move undone!")
             
-    def redo(self):
+    def redo(self): #Redoes the users last undo.
         if (len(self.redo_stack) == 0 ):
             input("\n There are no moves to redo!")
         else:
@@ -526,39 +540,45 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
             self.game_board[redo_row][redo_column] = redo_value
             self.undo_stack.append(last_undo)
             self.moves.append([redo_row, redo_column, redo_value])
-            print("\n Move redone!")
                    
-    def replay(self, moves, board, solution_board):
+    def replay(self, moves, board, solution_board): #Displays a board from a previous game and then cycles through each move.
+        clearConsole()
         print("\n Press any key to cycle through each move of the replay!")
-        print(" Start board:")
+        clearConsole()
+        print("\n Start board:")
         self.print_board(board)
+        input("")
         i = 1
         for move in moves:
+            clearConsole()
             board[move[0]][move[1]] = move[2]
-            input("")
-            print(" Move "+str(i)+":")
+            print("\n Move "+str(i)+":")
             self.print_board(board)
+            input("")
             i += 1   
+        clearConsole()
         print("\n Final board:")
         self.print_board(solution_board)
+        input("")
      
-    def hint(self):
+    def hint(self): #Reaplces the first 0 value on the board with with the correct value.
         if self.get_first_zero() is False:
-            print("\n There are no 0 values left on the board!")
+            input("\n There are no 0 values left on the board!")
         else:    
             row, column = self.get_first_zero()
             value = self.solution_board[row][column]
             self.undo_stack.append([row, column, value, self.game_board[row][column]])
             self.game_board[row][column] = value
             self.moves.append([row, column, value])
-            print("\n Value revealed!")
         
-    def get_first_zero(self):
+    def get_first_zero(self): #Finds the first 0 value on the board for hint().
         for row in self.game_board:
             for value in row:
                 if value == 0:
                     return self.game_board.index(row), row.index(value)
         return False
+        
+clearConsole = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear') #Clears the console.
         
 if __name__ == "__main__":
     main()
