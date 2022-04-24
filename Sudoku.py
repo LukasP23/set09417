@@ -7,7 +7,7 @@ import os
 
 def main():
     clearConsole()
-    input("\n Welcome to Sudoku! (Hit any key to continue)")
+    input("\n Welcome to Sudoku! (Hit the enter key to continue)")
     clearConsole()
     menu = Menu()
     menu.display_option()
@@ -332,7 +332,7 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
         self.display_option()
          
     def instructions(self): #Prints the instructions
-        input("\n Intructions:\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 3. You cannot enter a value in a square that is populated at the beginning of the game.\n 4. Once you think you have finished you can use the game menu to submit your board to be checked.")
+        input("\n 1. Normal Sudoku Rules apply - these can be found online.\n 2. At most stages throughout the application the enter key can be used to continue.\n 3. Whenever presented with a menu, enter a number corresponding to the item of the menu you want to select.\n 4. Either an easy, medium, or hard Sudoku board can be generated for each game mode.\n 5. The Sudoku board will be displayed with a letter corresponding to each row and column. To enter a value in the board you will be asked to enter the letter that corresponds to the row and then the column of the square you wish to select. You will then be asked for the value you wish to enter in that square.\n 6. You cannot enter a value in a square that is populated at the beginning of the game.\n 7. Once you think you have finished you can use the game menu to submit your board to be checked.\n 8. The lives game mode gives you 5 lives, eachtime you enter an incorrect value in a square a life is lost, if you reach 0 before finishing the game ends.\n 9. The timed game mode times how long a game takes you to complete, this is then saved to the leaderboard accesible through the main menu.\n 10. After each game you are asked to enter a name to save against the game, this allows you to replay each game from the replay feature accesible from the main menu.")
         self.display_option()
          
     def replay(self): #Displays the users previously saved games and allows them to replay them.
@@ -359,7 +359,7 @@ class Menu: #Displays and recieves input for the multiple menu's used in the gam
             sort_list = sorted(self.time_leaderboard.items(), key=lambda x:x[1])
             leaderboard = dict(sort_list)
             self.print_menu(leaderboard)
-            input("\n Hit any key to return to the main menu!")
+            input("\n Hit the enter key to return to the main menu!")
         self.display_option() 
     
 class Game: #Runs a game of Sudoku and handles the multiple options given to the user throughout the game
@@ -543,7 +543,7 @@ class Game: #Runs a game of Sudoku and handles the multiple options given to the
                    
     def replay(self, moves, board, solution_board): #Displays a board from a previous game and then cycles through each move.
         clearConsole()
-        print("\n Press any key to cycle through each move of the replay!")
+        print("\n Press the enter key to cycle through each move of the replay!")
         clearConsole()
         print("\n Start board:")
         self.print_board(board)
